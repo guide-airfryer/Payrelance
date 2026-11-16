@@ -33,6 +33,12 @@ label{font-size:13px;color:var(--mu)}
 .err{color:var(--ko);font-size:13px}
 </style></head><body>
 <div id="app"><main><p class="mu">Chargement…</p></main></div>
+<script>
+(function(){function show(t){var a=document.getElementById("app");if(a)a.innerHTML='<main style="padding:14px"><div style="background:#fff;border:1px solid #dbe3f0;border-radius:12px;padding:14px;color:#b42318"><b>Erreur technique</b><p style="word-break:break-word">'+String(t).replace(/</g,"&lt;")+'</p></div></main>'}
+window.onerror=function(m,u,l,c){show(m+" (ligne "+l+")")};
+window.addEventListener("unhandledrejection",function(e){show("Promesse : "+(e.reason&&(e.reason.message||e.reason)))});
+setTimeout(function(){var a=document.getElementById("app");if(a&&a.textContent.indexOf("Chargement")>-1)show("Toujours en chargement apres 8 s. supabase="+typeof window.supabase)},8000)})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const PLANS={starter:{n:"Starter",p:0,inv:10,ai:5,d:"10 factures en cours, 5 relances IA / mois"},pro:{n:"Pro",p:5000,inv:100,ai:100,d:"100 factures en cours, 100 relances IA / mois"},business:{n:"Business",p:15000,inv:1e9,ai:1e9,d:"Factures et relances IA illimitées"}};
@@ -183,10 +189,4 @@ async function send(){
 
 function abo(){
   const cur=S.prof.plan;
-  return `<h2>Abonnement</h2><p class="mu">Utilisation : ${S.invs.filter(i=>!i.paid).length} facture(s) en cours · ${monthAI()} relance(s) ce mois-ci.</p>${Object.entries(PLANS).map(([k,p])=>`<div class="card" style="${k===cur?"border:2px solid var(--pr)":""}"><div class="row sp"><h3>${p.n}</h3><b>${p.p?fc(p.p)+" / mois":"Gratuit"}</b></div><div class="mu">${p.d}</div>
-  ${k===cur?'<span class="tag t-ok">Formule actuelle</span>':`<button class="b sm" style="margin-top:8px" onclick="setPlan('${k}')">Choisir</button>`}</div>`).join("")}
-  <p class="mu">Paiement en ligne bientôt disponible : le changement de formule est pour l'instant sans paiement (mode test). Tarifs indicatifs.</p>`;
-}
-const setPlan=k=>alert("Le changement de formule sera activ\u00e9 avec le paiement en ligne (bient\u00f4t disponible).");
-
-function modal(h){closeM();const d=document.createElement("div");d.className="mod";d.id="mod";d.innerHTML="<div>"+h+"</div>";d.onclick=e=>{if(e.target===d)closeM()};
+  return `<h2>Abonnement</h2><p class="mu">Utilisation : ${S.invs.filter(i=>!i.paid).length} facture(s) en cours · ${monthAI()} relance(s) ce mois-ci.</p>${Object.entries(PLANS).map(([k,p])=>`<div class="card" style="${k===cur?"border:2px solid var(--pr)":""}"><div clas
