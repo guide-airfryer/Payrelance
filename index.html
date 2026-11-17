@@ -66,10 +66,10 @@ async function init(){
   S.uid=sess.user.id;await load();
 }
 async function load(){
-  const [p,c,i,r]=await Promise.all([sb.from("profiles").select("*").eq("id",S.uid).maybeSingle(),sb.from("clients").select("*").order("created_at"),sb.from("invoices").select("*").order("created_at"),sb.from("reminders").select("*").order("created_at")]);
-  const e=p.error||c.error||i.error||r.error;
+  const [p,c,i,r,y]=await Promise.all([sb.from("profiles").select("*").eq("id",S.uid).maybeSingle(),sb.from("clients").select("*").order("created_at"),sb.from("invoices").select("*").order("created_at"),sb.from("reminders").select("*").order("created_at"),sb.from("payments").select("*").order("created_at")]);
+  const e=p.error||c.error||i.error||r.error||y.error;
   if(e){$("#app").innerHTML='<main><div class="card err">Erreur : '+esc(e.message)+'</div></main>';return}
-  S.prof=p.data;S.clients=c.data.map(x=>({id:x.id,name:x.name,phone:x.phone,email:x.email}));
+  S.prof=p.data;S.pays=y.data||[];S.clients=c.data.map(x=>({id:x.id,name:x.name,phone:x.phone,email:x.email}));
   const cn=id=>(S.clients.find(x=>x.id===id)||{}).name||"";
   S.invs=i.data.map(x=>({id:x.id,clientId:x.client_id,clientName:cn(x.client_id),num:x.num,amount:Number(x.amount),issued:x.issued,due:x.due,paid:x.paid,paidOn:x.paid_on}));
   S.rems=r.data.map(x=>{const v=S.invs.find(y=>y.id===x.invoice_id)||{};return{id:x.id,invoiceId:x.invoice_id,clientName:v.clientName||"",num:v.num||"",channel:x.channel,tone:x.tone,message:x.message,at:x.created_at}});
@@ -188,17 +188,4 @@ async function send(){
   window.open(url,"_blank");closeM();go("rel");
 }
 
-function abo(){
-  const cur=S.prof.plan;
-  return `<h2>Abonnement</h2><p class="mu">Utilisation : ${S.invs.filter(i=>!i.paid).length} facture(s) en cours · ${monthAI()} relance(s) ce mois-ci.</p>${Object.entries(PLANS).map(([k,p])=>`<div class="card" style="${k===cur?"border:2px solid var(--pr)":""}"><div class="row sp"><h3>${p.n}</h3><b>${p.p?fc(p.p)+" / mois":"Gratuit"}</b></div><div class="mu">${p.d}</div>
-  ${k===cur?'<span class="tag t-ok">Formule actuelle</span>':`<button class="b sm" style="margin-top:8px" onclick="setPlan('${k}')">Choisir</button>`}</div>`).join("")}
-  <p class="mu">Paiement en ligne bientôt disponible : le changement de formule est pour l'instant sans paiement (mode test). Tarifs indicatifs.</p>`;
-}
-const setPlan=k=>alert("Le changement de formule sera activ\u00e9 avec le paiement en ligne (bient\u00f4t disponible).");
-
-function modal(h){closeM();const d=document.createElement("div");d.className="mod";d.id="mod";d.innerHTML="<div>"+h+"</div>";d.onclick=e=>{if(e.target===d)closeM()};document.body.appendChild(d)}
-function closeM(){$("#mod")?.remove()}
-function ask(m,f){modal('<p>'+esc(m)+'</p><div class="row"><button class="b d" id="okb">Supprimer</button><button class="b s" onclick="closeM()">Annuler</button></div>');$("#okb").onclick=()=>{closeM();f()}}
-window.alert=m=>modal('<p>'+esc(m)+'</p><button class="b" onclick="closeM()">OK</button>');
-init();
-</script></body></html>
+function abo()
