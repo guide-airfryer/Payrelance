@@ -188,4 +188,25 @@ async function send(){
   window.open(url,"_blank");closeM();go("rel");
 }
 
-function abo()
+function abo(){
+  const cur=S.prof.plan;
+  return `<h2>Abonnement</h2><p class="mu">Utilisation : ${S.invs.filter(i=>!i.paid).length} facture(s) en cours · ${monthAI()} relance(s) ce mois-ci.</p>${Object.entries(PLANS).map(([k,p])=>`<div class="card" style="${k===cur?"border:2px solid var(--pr)":""}"><div class="row sp"><h3>${p.n}</h3><b>${p.p?fc(p.p)+" / mois":"Gratuit"}</b></div><div class="mu">${p.d}</div>
+  ${k===cur?'<span class="tag t-ok">Formule actuelle</span>':k==="starter"?"":`<button class="b sm" style="margin-top:8px" onclick="requestPlan('${k}')">Demander cette formule</button>`}</div>`).join("")}
+  ${S.pays.length?'<h3>Mes demandes</h3><div class="card">'+S.pays.map(x=>'<div class="it"><b>'+esc((PLANS[x.plan]||{}).n||x.plan)+'</b> · '+esc(x.provider_ref||"")+' · <span class="tag '+(x.status==="pending"?"t-wa":"t-ok")+'">'+(x.status==="pending"?"En attente de vérification":"Traitée")+'</span></div>').join("")+'</div>':""}<p class="mu">Paiement par Wave ou Orange Money, activation après vérification. Tarifs indicatifs.</p>`;
+}
+const PAY_NUM="2250787585280",PAY_TXT="+225 07 87 58 52 80";
+async function requestPlan(k){
+  const pl=PLANS[k],ref="PR-"+Math.random().toString(36).slice(2,7).toUpperCase();
+  const r=await sb.from("payments").insert({plan:k,amount:pl.p,provider:"manuel",provider_ref:ref});
+  if(r.error){alert("Erreur : "+r.error.message);return}
+  await load();
+  const msg="Bonjour, j'ai payé "+fc(pl.p)+" pour la formule "+pl.n+" de PayRelance. Référence : "+ref+" ("+S.prof.company+").";
+  modal(`<h2>Formule ${esc(pl.n)}</h2><p>1. Envoyez <b>${fc(pl.p)}</b> par Wave ou Orange Money au <b>${PAY_TXT}</b>.</p><p>2. Indiquez la référence <b>${ref}</b> dans le message du transfert.</p><p>3. Envoyez la preuve de paiement sur WhatsApp. Votre formule sera activée après vérification.</p><div class="row"><a class="b" target="_blank" href="https://wa.me/${PAY_NUM}?text=${encodeURIComponent(msg)}">Envoyer la preuve</a><button class="b s" onclick="closeM()">Fermer</button></div>`);
+}
+
+function modal(h){closeM();const d=document.createElement("div");d.className="mod";d.id="mod";d.innerHTML="<div>"+h+"</div>";d.onclick=e=>{if(e.target===d)closeM()};document.body.appendChild(d)}
+function closeM(){$("#mod")?.remove()}
+function ask(m,f){modal('<p>'+esc(m)+'</p><div class="row"><button class="b d" id="okb">Supprimer</button><button class="b s" onclick="closeM()">Annuler</button></div>');$("#okb").onclick=()=>{closeM();f()}}
+window.alert=m=>modal('<p>'+esc(m)+'</p><button class="b" onclick="closeM()">OK</button>');
+init();
+</script></body></html>
