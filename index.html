@@ -167,7 +167,7 @@ function relModal(id){
   if(monthAI()>=plan().ai){alert("Limite mensuelle de relances IA atteinte pour la formule "+plan().n+".");return go("abo")}
   S.cur=i;
   modal(`<h2>Relance — ${esc(i.clientName)}</h2><p class="mu">N° ${esc(i.num)} · ${fc(i.amount)} · retard ${Math.max(0,days(today(),i.due))} j</p>
-  <label>Ton</label><select id="t">${["courtois","ferme","dernier avis"].map((x,k)=>`<option ${k===(days(today(),i.due)>30?2:days(today(),i.due)>14?1:0)?"selected":""}>${x}</option>`).join("")}</select><label>Canal</label><select id="ch"><option>WhatsApp</option><option>E-mail</option><option>SMS</option></select>
+  <label>Ton</label><select id="t">${["courtois","ferme","dernier avis"].map((x,k)=>`<option ${k===((n=>n===0?0:(n>=2||days(today(),i.due)>30)?2:1)(S.rems.filter(r=>r.invoiceId===i.id).length))?"selected":""}>${x}</option>`).join("")}</select><label>Canal</label><select id="ch"><option>WhatsApp</option><option>E-mail</option><option>SMS</option></select>
   <button class="b s" id="gb" onclick="gen()">Générer le message</button><label style="display:block;margin-top:10px">Message (modifiable)</label><textarea id="msg" rows="7"></textarea><p id="e" class="err"></p>
   <div class="row"><button class="b" id="sb" onclick="send()">Valider et envoyer</button><button class="b s" onclick="closeM()">Annuler</button></div><p class="mu">Rien n'est envoyé tant que vous n'avez pas validé.</p>`);
 }
